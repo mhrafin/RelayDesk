@@ -11,7 +11,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.2,
       "position": [
-        -384,
+        -320,
         -80
       ],
       "id": "6b2a284e-a23b-4957-b592-976593570d06",
@@ -27,7 +27,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        -160,
+        -96,
         -176
       ],
       "id": "52fa9f1b-e0ef-4540-998a-77c9ef6a3fc0",
@@ -44,7 +44,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        928,
+        992,
         -240
       ],
       "id": "e16968cd-785f-42ff-b6a3-cafbfae8f515",
@@ -58,8 +58,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.2,
       "position": [
-        880,
-        -16
+        936,
+        -8
       ],
       "id": "2d191591-ce3c-491e-b3ea-26205d231a03",
       "name": "Google Gemini Chat Model",
@@ -79,8 +79,8 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.4,
       "position": [
-        1008,
-        -16
+        1064,
+        -8
       ],
       "id": "50f5b521-9427-4387-8056-02fca958fa14",
       "name": "Simple Memory"
@@ -113,7 +113,7 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.4,
       "position": [
-        288,
+        352,
         16
       ],
       "id": "d7305f5a-b73a-4c2b-974c-c41668e6b6ae",
@@ -133,7 +133,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1328,
+        1744,
         -128
       ],
       "id": "768dbed9-9549-4007-8dbe-fc292def2265",
@@ -166,8 +166,8 @@
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.7,
       "position": [
-        1136,
-        -16
+        1192,
+        -8
       ],
       "id": "6524c991-14a1-407c-8913-cb0601927f0f",
       "name": "faq",
@@ -185,7 +185,7 @@
           "topicalAlignment": {
             "value": {
               "threshold": 0.7,
-              "prompt": "You are a content analysis system that determines if text stays on topic.\n\nBUSINESS SCOPE: Product\n\nDetermine if the text stays within the defined business scope. Flag any content\nthat strays from the allowed topics."
+              "prompt": "You are a content analysis system that determines if text stays on topic.\n\nBUSINESS SCOPE: Software development, software for businesses, software solutions, and software services.\n\nDetermine if the text stays within the defined business scope. Flag any content\nthat strays from the allowed topics."
             }
           }
         }
@@ -193,7 +193,7 @@
       "type": "@n8n/n8n-nodes-langchain.guardrails",
       "typeVersion": 2,
       "position": [
-        512,
+        576,
         16
       ],
       "id": "4c306f74-1700-4dea-bb53-137aeb9e032f",
@@ -207,13 +207,13 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"Please stay within the business scope.\"\n  }\n}\n",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $('Basic LLM Chain').item.json.text }}\"\n  }\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        992,
+        1968,
         160
       ],
       "id": "a6ba316d-f244-4080-af15-f466050bb3da",
@@ -233,7 +233,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1.1,
       "position": [
-        -160,
+        -96,
         16
       ],
       "id": "764ad98b-1414-49bd-83f8-e73ef85d452d",
@@ -247,7 +247,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1.1,
       "position": [
-        64,
+        128,
         16
       ],
       "id": "b264a420-2d17-432a-856f-6ab79beb387e",
@@ -255,154 +255,233 @@
     },
     {
       "parameters": {
-        "description": "Saves a confirmed order. Call only after the customer confirms. Returns an error if something is wrong.",
-        "workflowId": {
+        "operation": "append",
+        "documentId": {
           "__rl": true,
-          "value": "WYpEAcUYzlKRSdWz",
+          "value": "1HcXfIu7N8zZb1GSKRRHXvX6inDauVGhVrmIT6Erv2e8",
           "mode": "list",
-          "cachedResultUrl": "/workflow/WYpEAcUYzlKRSdWz",
-          "cachedResultName": "save-order"
+          "cachedResultName": "rd-n8n-log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcXfIu7N8zZb1GSKRRHXvX6inDauVGhVrmIT6Erv2e8/edit?usp=drivesdk"
         },
-        "workflowInputs": {
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "guardrail-logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcXfIu7N8zZb1GSKRRHXvX6inDauVGhVrmIT6Erv2e8/edit#gid=0"
+        },
+        "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "shipping_method ": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('shipping_method_', ``, 'string') }}",
-            "sender_id": "={{ $('Filter').item.json.sender.id }}",
-            "mid": "={{ $('Filter').item.json.message.mid }}",
-            "product_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('product_id', ``, 'string') }}",
-            "quantity": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('quantity', ``, 'number') }}",
-            "quoted_total": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('quoted_total', ``, 'number') }}",
-            "customer_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('customer_name', ``, 'string') }}",
-            "mobile": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('mobile', ``, 'string') }}",
-            "address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('address', ``, 'string') }}",
-            "bkash_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('bkash_number', ``, 'string') }}",
-            "transaction_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('transaction_id', ``, 'string') }}"
+            "User Message": "={{ $('Guardrails').item.json.guardrailsInput }}",
+            "confidenceScore": "={{ $('Split Out Checks').item.json.checks.confidenceScore }}",
+            "Type": "={{ $('Split Out Checks').item.json.checks.name }}",
+            "Time": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "LLM Message": "={{ $json.text }}"
           },
-          "matchingColumns": [],
+          "matchingColumns": [
+            "id"
+          ],
           "schema": [
             {
-              "id": "sender_id",
-              "displayName": "sender_id",
+              "id": "Time",
+              "displayName": "Time",
               "required": false,
               "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
               "type": "string",
+              "canBeUsedToMatch": true,
               "removed": false
             },
             {
-              "id": "mid",
-              "displayName": "mid",
+              "id": "Type",
+              "displayName": "Type",
               "required": false,
               "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
               "type": "string",
+              "canBeUsedToMatch": true,
               "removed": false
             },
             {
-              "id": "product_id",
-              "displayName": "product_id",
+              "id": "confidenceScore",
+              "displayName": "confidenceScore",
               "required": false,
               "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
               "type": "string",
+              "canBeUsedToMatch": true,
               "removed": false
             },
             {
-              "id": "quantity",
-              "displayName": "quantity",
+              "id": "User Message",
+              "displayName": "User Message",
               "required": false,
               "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
-              "type": "number",
-              "removed": false
-            },
-            {
-              "id": "quoted_total",
-              "displayName": "quoted_total",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "number",
-              "removed": false
-            },
-            {
-              "id": "customer_name",
-              "displayName": "customer_name",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
               "type": "string",
+              "canBeUsedToMatch": true,
               "removed": false
             },
             {
-              "id": "mobile",
-              "displayName": "mobile",
+              "id": "LLM Message",
+              "displayName": "LLM Message",
               "required": false,
               "defaultMatch": false,
               "display": true,
-              "canBeUsedToMatch": true,
               "type": "string",
-              "removed": false
-            },
-            {
-              "id": "address",
-              "displayName": "address",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
               "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "bkash_number",
-              "displayName": "bkash_number",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "transaction_id",
-              "displayName": "transaction_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "shipping_method ",
-              "displayName": "shipping_method ",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
               "removed": false
             }
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
-        }
+        },
+        "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
-      "typeVersion": 2.2,
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
       "position": [
-        -384,
-        400
+        1744,
+        160
       ],
-      "id": "2e291aa7-aeca-439b-80fe-a89ffc13b337",
-      "name": "save_order"
+      "id": "6771528a-f724-4777-9c58-1eec6f47054e",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1HcXfIu7N8zZb1GSKRRHXvX6inDauVGhVrmIT6Erv2e8",
+          "mode": "list",
+          "cachedResultName": "rd-n8n-log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcXfIu7N8zZb1GSKRRHXvX6inDauVGhVrmIT6Erv2e8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "guardrail-logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcXfIu7N8zZb1GSKRRHXvX6inDauVGhVrmIT6Erv2e8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "User Message": "={{ $json.guardrailsInput }}",
+            "confidenceScore": "={{ $json.checks[0].confidenceScore }}",
+            "Type": "={{ $json.checks[0].name }}",
+            "Time": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confidenceScore",
+              "displayName": "confidenceScore",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "User Message",
+              "displayName": "User Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1456,
+        -128
+      ],
+      "id": "b71f7c03-0e11-46cb-bbb2-67c32c88fdad",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Guardrails').item.json.guardrailsInput }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=The user sent a message that fell outside our business scope: 'Software development, software for businesses, software solutions, and software services.'. Write a polite, concise 1-2 sentence response explaining that we do not offer that product/service, but smoothly pivot to ask if they are looking for software solutions or business automation for their business."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1392,
+        160
+      ],
+      "id": "563f2155-348e-419f-9271-1d9f116ac5a3",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=checks",
+        "include": "selectedOtherFields",
+        "fieldsToInclude": "={{ $json.guardrailsInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        1056,
+        160
+      ],
+      "id": "26669692-49ee-4908-99e5-e7583b192931",
+      "name": "Split Out Checks",
+      "alwaysOutputData": true
     }
   ],
   "pinData": {},
@@ -437,6 +516,11 @@
             "node": "Guardrails",
             "type": "ai_languageModel",
             "index": 0
+          },
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
           }
         ]
       ]
@@ -467,7 +551,7 @@
       "main": [
         [
           {
-            "node": "HTTP Request",
+            "node": "Append row in sheet1",
             "type": "main",
             "index": 0
           }
@@ -496,7 +580,7 @@
         ],
         [
           {
-            "node": "HTTP Request1",
+            "node": "Split Out Checks",
             "type": "main",
             "index": 0
           }
@@ -525,19 +609,58 @@
         ]
       ]
     },
-    "save_order": {
-      "ai_tool": [
-        []
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Checks": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
     "availableInMCP": true
   },
-  "versionId": "361c3ce2-0681-424f-b6be-12c673befe5d",
+  "versionId": "b13632c9-d653-4b07-b20c-40139c4a5ad5",
   "meta": {
     "templateCredsSetupCompleted": true
   },
