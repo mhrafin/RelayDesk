@@ -12,7 +12,7 @@
       "typeVersion": 2.2,
       "position": [
         -320,
-        -80
+        -320
       ],
       "id": "6b2a284e-a23b-4957-b592-976593570d06",
       "name": "Webhook",
@@ -28,7 +28,7 @@
       "typeVersion": 1.5,
       "position": [
         -96,
-        -176
+        -416
       ],
       "id": "52fa9f1b-e0ef-4540-998a-77c9ef6a3fc0",
       "name": "Respond to Webhook"
@@ -37,15 +37,17 @@
       "parameters": {
         "promptType": "define",
         "text": "={{ $('Filter').item.json.message.text }}",
+        "hasOutputParser": true,
         "options": {
-          "systemMessage": "Reply in plaintext only. No Markdown, no asterisks."
+          "systemMessage": "Use only plaintext in the customer-facing response. Do not use Markdown or asterisks.\n\nYou are a customer support and customer acquisition agent. Your job is to answer customer queries and identify opportunities to help potential customers.\n\nUse the available Google Sheets tools to retrieve relevant information before deciding how to respond.\n\nReturn exactly one structured result:\n- If the retrieved data supports an answer, return only a `response` field containing the customer-facing reply. Do not include `needs_human`.\n- If the answer is not present in the retrieved Google Sheets data, return only `needs_human: true`. Do not include `response`.\n\nNever return `needs_human: false`, never include both fields, and do not add other fields.",
+          "forceToolCallOnFirstIteration": true
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        992,
-        -240
+        1056,
+        -480
       ],
       "id": "e16968cd-785f-42ff-b6a3-cafbfae8f515",
       "name": "AI Agent"
@@ -58,8 +60,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.2,
       "position": [
-        936,
-        -8
+        944,
+        -256
       ],
       "id": "2d191591-ce3c-491e-b3ea-26205d231a03",
       "name": "Google Gemini Chat Model",
@@ -79,8 +81,8 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.4,
       "position": [
-        1064,
-        -8
+        1072,
+        -256
       ],
       "id": "50f5b521-9427-4387-8056-02fca958fa14",
       "name": "Simple Memory"
@@ -114,7 +116,7 @@
       "typeVersion": 2.4,
       "position": [
         352,
-        16
+        -224
       ],
       "id": "d7305f5a-b73a-4c2b-974c-c41668e6b6ae",
       "name": "Filter"
@@ -127,14 +129,14 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output) }}\n  }\n}\n",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output.response) }}\n  }\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1744,
-        -128
+        1872,
+        -272
       ],
       "id": "768dbed9-9549-4007-8dbe-fc292def2265",
       "name": "HTTP Request",
@@ -166,8 +168,8 @@
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.7,
       "position": [
-        1192,
-        -8
+        1200,
+        -256
       ],
       "id": "6524c991-14a1-407c-8913-cb0601927f0f",
       "name": "faq",
@@ -194,7 +196,7 @@
       "typeVersion": 2,
       "position": [
         576,
-        16
+        -224
       ],
       "id": "4c306f74-1700-4dea-bb53-137aeb9e032f",
       "name": "Guardrails"
@@ -213,8 +215,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1968,
-        160
+        2096,
+        -32
       ],
       "id": "a6ba316d-f244-4080-af15-f466050bb3da",
       "name": "HTTP Request1",
@@ -234,7 +236,7 @@
       "typeVersion": 1.1,
       "position": [
         -96,
-        16
+        -224
       ],
       "id": "764ad98b-1414-49bd-83f8-e73ef85d452d",
       "name": "Split Out Entry"
@@ -248,10 +250,189 @@
       "typeVersion": 1.1,
       "position": [
         128,
-        16
+        -224
       ],
       "id": "b264a420-2d17-432a-856f-6ab79beb387e",
       "name": "Split Out Messaging"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Guardrails').item.json.guardrailsInput }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=The user sent a message that fell outside our business scope: 'Software development, software for businesses, software solutions, and software services.'. Write a polite, concise 1-2 sentence response explaining that we do not offer that product/service, but smoothly pivot to ask if they are looking for software solutions or business automation for their business."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1520,
+        -32
+      ],
+      "id": "563f2155-348e-419f-9271-1d9f116ac5a3",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=checks",
+        "include": "selectedOtherFields",
+        "fieldsToInclude": "={{ $json.guardrailsInput }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        -32
+      ],
+      "id": "26669692-49ee-4908-99e5-e7583b192931",
+      "name": "Split Out Checks",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"oneOf\": [\n    {\n      \"type\": \"object\",\n      \"properties\": {\n        \"needs_human\": {\n          \"type\": \"boolean\",\n          \"const\": true\n        }\n      },\n      \"required\": [\n        \"needs_human\"\n      ],\n      \"additionalProperties\": false\n    },\n    {\n      \"type\": \"object\",\n      \"properties\": {\n        \"response\": {\n          \"type\": \"string\"\n        }\n      },\n      \"required\": [\n        \"response\"\n      ],\n      \"additionalProperties\": false\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1328,
+        -256
+      ],
+      "id": "5e7c2d1c-8430-4ce4-a861-1f8b48c239c7",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -320,
+        -704
+      ],
+      "id": "a5adb66a-ec86-4a5e-ab17-5029681916fc",
+      "name": "Telegram Trigger",
+      "webhookId": "9000de2b-e8f3-4984-86ef-6e0040584353",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit#gid=476297179"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "customer_messenger_id": "={{ $('Filter').item.json.sender.id }}",
+            "message": "={{ $('Filter').item.json.message.text }}",
+            "arrived_at": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "status": "pending",
+            "telegram_notification_id": "not_set"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_messenger_id",
+              "displayName": "customer_messenger_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "arrived_at",
+              "displayName": "arrived_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telegram_notification_id",
+              "displayName": "telegram_notification_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1872,
+        -464
+      ],
+      "id": "b71f7c03-0e11-46cb-bbb2-67c32c88fdad",
+      "name": "Append row in support-ticket",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
     },
     {
       "parameters": {
@@ -342,11 +523,11 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1744,
-        160
+        1872,
+        -32
       ],
       "id": "6771528a-f724-4777-9c58-1eec6f47054e",
-      "name": "Append row in sheet",
+      "name": "Append row in guardrail-logs",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
@@ -356,72 +537,222 @@
     },
     {
       "parameters": {
-        "operation": "append",
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b32fd6f9-597b-411c-a772-328a392cabb7",
+              "leftValue": "={{ $json.output.needs_human }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1584,
+        -368
+      ],
+      "id": "288c23fa-ce7f-4d01-9936-ff0a02f26126",
+      "name": "If needs_human"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -320,
+        -928
+      ],
+      "id": "46c2da57-fa59-4a04-9dab-423a0f9ef564",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "1HcXfIu7N8zZb1GSKRRHXvX6inDauVGhVrmIT6Erv2e8",
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
           "mode": "list",
-          "cachedResultName": "rd-n8n-log",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcXfIu7N8zZb1GSKRRHXvX6inDauVGhVrmIT6Erv2e8/edit?usp=drivesdk"
+          "cachedResultName": "regressus-devs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=0",
+          "value": 476297179,
           "mode": "list",
-          "cachedResultName": "guardrail-logs",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcXfIu7N8zZb1GSKRRHXvX6inDauVGhVrmIT6Erv2e8/edit#gid=0"
+          "cachedResultName": "support-ticket",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit#gid=476297179"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "pending"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -96,
+        -928
+      ],
+      "id": "7a94a8c9-3ff0-4bb2-a622-89b698f24d48",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1f3fc6d8-9bb3-4e9a-992d-a199f5d5f791",
+              "name": "supportGroupChatId",
+              "value": "=-5369062600",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        128,
+        -928
+      ],
+      "id": "6d1b9d34-4f48-4232-b705-4a4c96d5804b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.supportGroupChatId }}",
+        "text": "=🔔 Human response needed\nTicket: {ticket_id}\n\nCustomer message:\n“{{ $('Get row(s) in sheet').item.json.message }}”\n\nReply directly to this message with the exact response for the customer. If automatic forwarding is enabled, your reply will be sent to them as written. It will also be saved as an FAQ candidate for review. Please keep internal notes out of your reply.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        -928
+      ],
+      "id": "b6ed6c06-7a27-48eb-b134-f181ef3dbae6",
+      "name": "Send a text message",
+      "webhookId": "31271522-2636-42ff-9ada-4b6518e30c02",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit#gid=476297179"
         },
         "columns": {
           "mappingMode": "defineBelow",
-          "value": {
-            "User Message": "={{ $json.guardrailsInput }}",
-            "confidenceScore": "={{ $json.checks[0].confidenceScore }}",
-            "Type": "={{ $json.checks[0].name }}",
-            "Time": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
-          },
-          "matchingColumns": [
-            "id"
-          ],
+          "value": {},
+          "matchingColumns": [],
           "schema": [
             {
-              "id": "Time",
-              "displayName": "Time",
+              "id": "customer_messenger_id",
+              "displayName": "customer_messenger_id",
               "required": false,
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
+              "canBeUsedToMatch": true
             },
             {
-              "id": "Type",
-              "displayName": "Type",
+              "id": "message",
+              "displayName": "message",
               "required": false,
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
+              "canBeUsedToMatch": true
             },
             {
-              "id": "confidenceScore",
-              "displayName": "confidenceScore",
+              "id": "arrived_at",
+              "displayName": "arrived_at",
               "required": false,
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
+              "canBeUsedToMatch": true
             },
             {
-              "id": "User Message",
-              "displayName": "User Message",
+              "id": "status",
+              "displayName": "status",
               "required": false,
               "defaultMatch": false,
               "display": true,
               "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telegram_notification_id",
+              "displayName": "telegram_notification_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
               "canBeUsedToMatch": true,
-              "removed": false
+              "readOnly": true,
+              "removed": true
             }
           ],
           "attemptToConvertTypes": false,
@@ -432,56 +763,17 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1456,
-        -128
+        576,
+        -928
       ],
-      "id": "b71f7c03-0e11-46cb-bbb2-67c32c88fdad",
-      "name": "Append row in sheet1",
+      "id": "fdda017c-84a2-4616-a987-8451305d3547",
+      "name": "Update row in sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
           "name": "Google Sheets account"
         }
       }
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "={{ $('Guardrails').item.json.guardrailsInput }}",
-        "messages": {
-          "messageValues": [
-            {
-              "message": "=The user sent a message that fell outside our business scope: 'Software development, software for businesses, software solutions, and software services.'. Write a polite, concise 1-2 sentence response explaining that we do not offer that product/service, but smoothly pivot to ask if they are looking for software solutions or business automation for their business."
-            }
-          ]
-        },
-        "batching": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.9,
-      "position": [
-        1392,
-        160
-      ],
-      "id": "563f2155-348e-419f-9271-1d9f116ac5a3",
-      "name": "Basic LLM Chain"
-    },
-    {
-      "parameters": {
-        "fieldToSplitOut": "=checks",
-        "include": "selectedOtherFields",
-        "fieldsToInclude": "={{ $json.guardrailsInput }}",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.splitOut",
-      "typeVersion": 1.1,
-      "position": [
-        1056,
-        160
-      ],
-      "id": "26669692-49ee-4908-99e5-e7583b192931",
-      "name": "Split Out Checks",
-      "alwaysOutputData": true
     }
   ],
   "pinData": {},
@@ -551,7 +843,7 @@
       "main": [
         [
           {
-            "node": "Append row in sheet1",
+            "node": "If needs_human",
             "type": "main",
             "index": 0
           }
@@ -609,33 +901,11 @@
         ]
       ]
     },
-    "Append row in sheet": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Append row in sheet1": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Basic LLM Chain": {
       "main": [
         [
           {
-            "node": "Append row in sheet",
+            "node": "Append row in guardrail-logs",
             "type": "main",
             "index": 0
           }
@@ -652,6 +922,100 @@
           }
         ]
       ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in support-ticket": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in guardrail-logs": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If needs_human": {
+      "main": [
+        [
+          {
+            "node": "Append row in support-ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -660,9 +1024,11 @@
     "binaryMode": "separate",
     "availableInMCP": true
   },
-  "versionId": "b13632c9-d653-4b07-b20c-40139c4a5ad5",
+  "versionId": "0a29ecbe-2ce1-42f9-be11-aa75207a3805",
   "meta": {
-    "templateCredsSetupCompleted": true
+    "templateCredsSetupCompleted": true,
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
   },
   "nodeGroups": [],
   "id": "eDO0iQhrvJCzPbPR",
