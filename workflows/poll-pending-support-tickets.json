@@ -1,0 +1,343 @@
+{
+  "name": "Poll Pending Support Tickets",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "31ca16ae-831f-46f6-9620-4b2bce6328ce",
+      "name": "Poll Pending Support Tickets",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "pending"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "id": "4e356a09-e628-4f68-ad3f-610012b2e395",
+      "name": "Find Pending Support Ticket",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        304
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1f3fc6d8-9bb3-4e9a-992d-a199f5d5f791",
+              "name": "supportGroupChatId",
+              "value": "={{ -5369062600 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cc063ce5-4736-432b-861a-f3afe4e5ef10",
+      "name": "Set Support Group Chat ID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        800,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.supportGroupChatId }}",
+        "text": "=🔔 Human response needed\nTicket: {{ $('Find Pending Support Ticket').item.json.ticket_id }}\n\nCustomer message:\n“{{ $(\"Find Pending Support Ticket\").item.json.message }}”\n\nReply directly to this message with the exact response for the customer. If automatic forwarding is enabled, your reply will be sent to them as written. It will also be saved as an FAQ candidate for review. Please keep internal notes out of your reply.",
+        "additionalFields": {}
+      },
+      "id": "3cd64561-22de-43e1-8874-4b7d45d58978",
+      "name": "Notify Support Team on Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1088,
+        304
+      ],
+      "webhookId": "e579604d-6d16-47db-a657-1070ede0df09",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "hKchpdB4aXRkC2ql",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_ticket_sequence"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "support"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "b7d7a589-230a-4bd2-bcca-d2c6095b0200",
+      "name": "Read Ticket Sequence for Notification",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('Find Pending Support Ticket').item.json.ticket_id }}",
+            "telegram_notification_id": "={{ $('Notify Support Team on Telegram').item.json.result.message_id }}",
+            "status": "message-sent"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customer_messenger_id",
+              "displayName": "customer_messenger_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "arrived_at",
+              "displayName": "arrived_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "telegram_notification_id",
+              "displayName": "telegram_notification_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "af3b6049-49f4-44a0-af0d-762889e8eca9",
+      "name": "Mark Ticket Notification Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1648,
+        304
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Poll Pending Support Tickets": {
+      "main": [
+        [
+          {
+            "node": "Find Pending Support Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Pending Support Ticket": {
+      "main": [
+        [
+          {
+            "node": "Set Support Group Chat ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Support Group Chat ID": {
+      "main": [
+        [
+          {
+            "node": "Notify Support Team on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Support Team on Telegram": {
+      "main": [
+        [
+          {
+            "node": "Read Ticket Sequence for Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Ticket Sequence for Notification": {
+      "main": [
+        [
+          {
+            "node": "Mark Ticket Notification Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate"
+  },
+  "versionId": "d68cfa23-1f2e-4655-b0c6-241ba3a074f6",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  },
+  "nodeGroups": [
+    {
+      "id": "a9047e40-ca58-42dd-9a98-86c9b9dc43f1",
+      "name": "Find and notify pending ticket",
+      "nodeNames": [
+        "Find Pending Support Ticket",
+        "Set Support Group Chat ID",
+        "Notify Support Team on Telegram",
+        "Read Ticket Sequence for Notification",
+        "Mark Ticket Notification Sent"
+      ],
+      "description": "Finds one pending ticket, notifies the Telegram support group, and records the notification."
+    }
+  ],
+  "id": "GjD7BdXxhvenf8FF",
+  "tags": []
+}

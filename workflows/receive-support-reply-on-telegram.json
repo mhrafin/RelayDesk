@@ -1,0 +1,393 @@
+{
+  "name": "Receive Support Reply on Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "96bec8a3-4612-4635-a2e3-6a4052a8c6d8",
+      "name": "Receive Support Reply on Telegram",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        240,
+        304
+      ],
+      "webhookId": "85bc2ef2-331b-4e22-b158-df7e254eecc5",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "Bm4gHXFmUIqbHQqk",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_public_vars"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "telegram_group_chat_id"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "9bfba5c6-aa54-413c-a7a7-55d8d0f7bd9a",
+      "name": "Load Telegram Support Chat ID",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "1f7740d0-79fe-469b-aa01-ca5c169eb5e9",
+              "leftValue": "={{ $('Receive Support Reply on Telegram').item.json.message.reply_to_message.chat.id }}",
+              "rightValue": "={{ $('Load Telegram Support Chat ID').item.json.value.toNumber() }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "20399d18-79d2-4846-b0d6-f3acec6e5a39",
+              "leftValue": "={{ $('Receive Support Reply on Telegram').item.json.message.reply_to_message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "740a5b28-deb4-47b8-93a6-064eb86f5172",
+              "leftValue": "={{ $('Receive Support Reply on Telegram').item.json.message.reply_to_message.message_id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5bb30c1a-7c12-43a0-9cb1-e1de8c6e60f4",
+      "name": "Verify Telegram Support Reply",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        800,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "message-sent"
+            },
+            {
+              "lookupColumn": "telegram_notification_id",
+              "lookupValue": "={{ $('Receive Support Reply on Telegram').item.json.message.reply_to_message.message_id }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "id": "559cb74a-7fe8-4942-9ebe-32d326fdbcfd",
+      "name": "Find Ticket for Telegram Reply",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1088,
+        304
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "Bm4gHXFmUIqbHQqk",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_public_vars"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "fb_page_id"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "a9ab1f3a-6bcb-4527-a164-17eee0b89047",
+      "name": "Load Meta Page ID",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v26.0/{{ $json.value }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $(\"Find Ticket for Telegram Reply\").item.json.customer_messenger_id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $(\"Receive Support Reply on Telegram\").item.json.message.text }}\"\n  }\n}\n",
+        "options": {}
+      },
+      "id": "9234c642-90ac-4480-9599-de9595f95464",
+      "name": "Forward Support Reply to Messenger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1648,
+        304
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "dEt7eeU7TP534opw",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 604472928,
+          "mode": "list",
+          "cachedResultName": "faq-candidates"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Question": "={{ $('Find Ticket for Telegram Reply').item.json.message }}",
+            " Answer": "={{ $('Receive Support Reply on Telegram').item.json.message.text }}",
+            "status": "pending",
+            "date_added": "={{ $today.format('dd/LL/yyyy') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Question",
+              "displayName": "Question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": " Answer",
+              "displayName": " Answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date_added",
+              "displayName": "date_added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "02caac8f-70ba-4e4b-96bd-d706911b9335",
+      "name": "Save Reply as FAQ Candidate",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1920,
+        304
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Support Reply on Telegram": {
+      "main": [
+        [
+          {
+            "node": "Load Telegram Support Chat ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Telegram Support Chat ID": {
+      "main": [
+        [
+          {
+            "node": "Verify Telegram Support Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Telegram Support Reply": {
+      "main": [
+        [
+          {
+            "node": "Find Ticket for Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Ticket for Telegram Reply": {
+      "main": [
+        [
+          {
+            "node": "Load Meta Page ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Meta Page ID": {
+      "main": [
+        [
+          {
+            "node": "Forward Support Reply to Messenger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forward Support Reply to Messenger": {
+      "main": [
+        [
+          {
+            "node": "Save Reply as FAQ Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate"
+  },
+  "versionId": "ea6a9c83-43c7-4f5a-9ea7-a472366c70d1",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  },
+  "nodeGroups": [
+    {
+      "id": "3429ae27-69b8-4921-9aab-6bb5215c02c9",
+      "name": "Validate and forward support reply",
+      "nodeNames": [
+        "Load Telegram Support Chat ID",
+        "Verify Telegram Support Reply",
+        "Find Ticket for Telegram Reply",
+        "Load Meta Page ID",
+        "Forward Support Reply to Messenger",
+        "Save Reply as FAQ Candidate"
+      ],
+      "description": "Validates a Telegram reply, forwards it to Messenger, and saves it as an FAQ candidate."
+    }
+  ],
+  "id": "KI9Rk4fwQ35wbg2q",
+  "tags": []
+}
