@@ -12,10 +12,10 @@
       "typeVersion": 2.2,
       "position": [
         -320,
-        -320
+        -352
       ],
       "id": "6b2a284e-a23b-4957-b592-976593570d06",
-      "name": "Webhook",
+      "name": "Receive Meta Messenger Webhook",
       "webhookId": "0b1e8e4c-c30a-4f5f-95b1-3ebd7dbedb54"
     },
     {
@@ -28,29 +28,10 @@
       "typeVersion": 1.5,
       "position": [
         -96,
-        -416
+        -448
       ],
       "id": "52fa9f1b-e0ef-4540-998a-77c9ef6a3fc0",
-      "name": "Respond to Webhook"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "={{ $('Filter').item.json.message.text }}",
-        "hasOutputParser": true,
-        "options": {
-          "systemMessage": "Use only plaintext in the customer-facing response. Do not use Markdown or asterisks.\n\nYou are a customer support and customer acquisition agent. Your job is to answer customer queries and identify opportunities to help potential customers.\n\nUse the available Google Sheets tools to retrieve relevant information before deciding how to respond.\n\nReturn exactly one structured result:\n- If the retrieved data supports an answer, return only a `response` field containing the customer-facing reply. Do not include `needs_human`.\n- If the answer is not present in the retrieved Google Sheets data, return only `needs_human: true`. Do not include `response`.\n\nNever return `needs_human: false`, never include both fields, and do not add other fields.",
-          "forceToolCallOnFirstIteration": true
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        1056,
-        -480
-      ],
-      "id": "e16968cd-785f-42ff-b6a3-cafbfae8f515",
-      "name": "AI Agent"
+      "name": "Return Meta Webhook Verification Challenge"
     },
     {
       "parameters": {
@@ -61,10 +42,10 @@
       "typeVersion": 1.2,
       "position": [
         944,
-        -256
+        -288
       ],
       "id": "2d191591-ce3c-491e-b3ea-26205d231a03",
-      "name": "Google Gemini Chat Model",
+      "name": "Gemini Flash Lite Chat Model",
       "credentials": {
         "googlePalmApi": {
           "id": "qHQsJ6rdNby3pmT8",
@@ -75,17 +56,17 @@
     {
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Filter').item.json.sender.id }}",
+        "sessionKey": "={{ $('Keep Messages with Text').item.json.sender.id }}",
         "contextWindowLength": 10
       },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.4,
       "position": [
         1072,
-        -256
+        -288
       ],
       "id": "50f5b521-9427-4387-8056-02fca958fa14",
-      "name": "Simple Memory"
+      "name": "Remember Messenger Conversation"
     },
     {
       "parameters": {
@@ -116,30 +97,30 @@
       "typeVersion": 2.4,
       "position": [
         352,
-        -224
+        -256
       ],
       "id": "d7305f5a-b73a-4c2b-974c-c41668e6b6ae",
-      "name": "Filter"
+      "name": "Keep Messages with Text"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://graph.facebook.com/v26.0/{{ $('Filter').item.json.recipient.id }}/messages",
+        "url": "=https://graph.facebook.com/v26.0/{{ $('Keep Messages with Text').item.json.recipient.id }}/messages",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output.response) }}\n  }\n}\n",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Keep Messages with Text').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output.response) }}\n  }\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
         1872,
-        -272
+        -304
       ],
       "id": "768dbed9-9549-4007-8dbe-fc292def2265",
-      "name": "HTTP Request",
+      "name": "Send AI Reply to Messenger",
       "credentials": {
         "httpHeaderAuth": {
           "id": "dEt7eeU7TP534opw",
@@ -169,10 +150,10 @@
       "typeVersion": 4.7,
       "position": [
         1200,
-        -256
+        -288
       ],
       "id": "6524c991-14a1-407c-8913-cb0601927f0f",
-      "name": "faq",
+      "name": "Search FAQ Knowledge Base",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
@@ -196,30 +177,30 @@
       "typeVersion": 2,
       "position": [
         576,
-        -224
+        -256
       ],
       "id": "4c306f74-1700-4dea-bb53-137aeb9e032f",
-      "name": "Guardrails"
+      "name": "Check Message Business Relevance"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://graph.facebook.com/v26.0/{{ $('Filter').item.json.recipient.id }}/messages",
+        "url": "=https://graph.facebook.com/v26.0/{{ $('Keep Messages with Text').item.json.recipient.id }}/messages",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $('Basic LLM Chain').item.json.text }}\"\n  }\n}\n",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Keep Messages with Text').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $('Draft Off-Topic Reply').item.json.text }}\"\n  }\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
         2096,
-        -32
+        -64
       ],
       "id": "a6ba316d-f244-4080-af15-f466050bb3da",
-      "name": "HTTP Request1",
+      "name": "Send Off-Topic Reply to Messenger",
       "credentials": {
         "httpHeaderAuth": {
           "id": "dEt7eeU7TP534opw",
@@ -236,10 +217,10 @@
       "typeVersion": 1.1,
       "position": [
         -96,
-        -224
+        -256
       ],
       "id": "764ad98b-1414-49bd-83f8-e73ef85d452d",
-      "name": "Split Out Entry"
+      "name": "Split Meta Webhook Entries"
     },
     {
       "parameters": {
@@ -250,15 +231,15 @@
       "typeVersion": 1.1,
       "position": [
         128,
-        -224
+        -256
       ],
       "id": "b264a420-2d17-432a-856f-6ab79beb387e",
-      "name": "Split Out Messaging"
+      "name": "Split Messenger Events"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $('Guardrails').item.json.guardrailsInput }}",
+        "text": "={{ $('Check Message Business Relevance').item.json.guardrailsInput }}",
         "messages": {
           "messageValues": [
             {
@@ -272,10 +253,10 @@
       "typeVersion": 1.9,
       "position": [
         1520,
-        -32
+        -64
       ],
       "id": "563f2155-348e-419f-9271-1d9f116ac5a3",
-      "name": "Basic LLM Chain"
+      "name": "Draft Off-Topic Reply"
     },
     {
       "parameters": {
@@ -288,10 +269,10 @@
       "typeVersion": 1.1,
       "position": [
         1120,
-        -32
+        -64
       ],
       "id": "26669692-49ee-4908-99e5-e7583b192931",
-      "name": "Split Out Checks",
+      "name": "Split Guardrail Checks",
       "alwaysOutputData": true
     },
     {
@@ -303,10 +284,10 @@
       "typeVersion": 1.3,
       "position": [
         1328,
-        -256
+        -288
       ],
       "id": "5e7c2d1c-8430-4ce4-a861-1f8b48c239c7",
-      "name": "Structured Output Parser1"
+      "name": "Validate Reply or Human Handoff"
     },
     {
       "parameters": {
@@ -319,10 +300,10 @@
       "typeVersion": 1.5,
       "position": [
         -320,
-        -704
+        -736
       ],
       "id": "a5adb66a-ec86-4a5e-ab17-5029681916fc",
-      "name": "Telegram Trigger",
+      "name": "Receive Support Reply on Telegram",
       "webhookId": "9000de2b-e8f3-4984-86ef-6e0040584353",
       "credentials": {
         "telegramApi": {
@@ -351,11 +332,12 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "customer_messenger_id": "={{ $('Filter').item.json.sender.id }}",
-            "message": "={{ $('Filter').item.json.message.text }}",
+            "customer_messenger_id": "={{ $('Keep Messages with Text').item.json.sender.id }}",
+            "message": "={{ $('Keep Messages with Text').item.json.message.text }}",
             "arrived_at": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
             "status": "pending",
-            "telegram_notification_id": "not_set"
+            "telegram_notification_id": "not_set",
+            "ticket_id": "={{ 'T-' + $execution.id + '-' + $json.last_number}}"
           },
           "matchingColumns": [],
           "schema": [
@@ -366,7 +348,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "customer_messenger_id",
@@ -375,7 +358,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "message",
@@ -384,7 +368,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "arrived_at",
@@ -393,7 +378,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "status",
@@ -402,7 +388,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "telegram_notification_id",
@@ -411,7 +398,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -422,11 +410,11 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1872,
-        -464
+        2320,
+        -496
       ],
       "id": "b71f7c03-0e11-46cb-bbb2-67c32c88fdad",
-      "name": "Append row in support-ticket",
+      "name": "Create Human-Handoff Support Ticket",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
@@ -454,9 +442,9 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "User Message": "={{ $('Guardrails').item.json.guardrailsInput }}",
-            "confidenceScore": "={{ $('Split Out Checks').item.json.checks.confidenceScore }}",
-            "Type": "={{ $('Split Out Checks').item.json.checks.name }}",
+            "User Message": "={{ $('Check Message Business Relevance').item.json.guardrailsInput }}",
+            "confidenceScore": "={{ $('Split Guardrail Checks').item.json.checks.confidenceScore }}",
+            "Type": "={{ $('Split Guardrail Checks').item.json.checks.name }}",
             "Time": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
             "LLM Message": "={{ $json.text }}"
           },
@@ -524,10 +512,10 @@
       "typeVersion": 4.7,
       "position": [
         1872,
-        -32
+        -64
       ],
       "id": "6771528a-f724-4777-9c58-1eec6f47054e",
-      "name": "Append row in guardrail-logs",
+      "name": "Log Guardrail Result",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
@@ -564,10 +552,10 @@
       "typeVersion": 2.4,
       "position": [
         1584,
-        -368
+        -400
       ],
       "id": "288c23fa-ce7f-4d01-9936-ff0a02f26126",
-      "name": "If needs_human"
+      "name": "Route Unanswered Questions"
     },
     {
       "parameters": {
@@ -583,10 +571,10 @@
       "typeVersion": 1.4,
       "position": [
         -320,
-        -928
+        -960
       ],
       "id": "46c2da57-fa59-4a04-9dab-423a0f9ef564",
-      "name": "Schedule Trigger"
+      "name": "Poll Pending Support Tickets"
     },
     {
       "parameters": {
@@ -620,10 +608,10 @@
       "typeVersion": 4.7,
       "position": [
         -96,
-        -928
+        -960
       ],
       "id": "7a94a8c9-3ff0-4bb2-a622-89b698f24d48",
-      "name": "Get row(s) in sheet",
+      "name": "Find Pending Support Ticket",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
@@ -649,25 +637,25 @@
       "typeVersion": 3.5,
       "position": [
         128,
-        -928
+        -960
       ],
       "id": "6d1b9d34-4f48-4232-b705-4a4c96d5804b",
-      "name": "Edit Fields"
+      "name": "Set Support Group Chat ID"
     },
     {
       "parameters": {
         "chatId": "={{ $json.supportGroupChatId }}",
-        "text": "=🔔 Human response needed\nTicket: {ticket_id}\n\nCustomer message:\n“{{ $('Get row(s) in sheet').item.json.message }}”\n\nReply directly to this message with the exact response for the customer. If automatic forwarding is enabled, your reply will be sent to them as written. It will also be saved as an FAQ candidate for review. Please keep internal notes out of your reply.",
+        "text": "=🔔 Human response needed\nTicket: {ticket_id}\n\nCustomer message:\n“{{ $('Find Pending Support Ticket').item.json.message }}”\n\nReply directly to this message with the exact response for the customer. If automatic forwarding is enabled, your reply will be sent to them as written. It will also be saved as an FAQ candidate for review. Please keep internal notes out of your reply.",
         "additionalFields": {}
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
         352,
-        -928
+        -960
       ],
       "id": "b6ed6c06-7a27-48eb-b134-f181ef3dbae6",
-      "name": "Send a text message",
+      "name": "Notify Support Team on Telegram",
       "webhookId": "31271522-2636-42ff-9ada-4b6518e30c02",
       "credentials": {
         "telegramApi": {
@@ -695,9 +683,25 @@
         },
         "columns": {
           "mappingMode": "defineBelow",
-          "value": {},
-          "matchingColumns": [],
+          "value": {
+            "ticket_id": "={{ $('Find Pending Support Ticket').item.json.ticket_id }}",
+            "telegram_notification_id": "={{ $('Notify Support Team on Telegram').item.json.result.message_id }}",
+            "status": "message-sent"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
           "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
             {
               "id": "customer_messenger_id",
               "displayName": "customer_messenger_id",
@@ -705,7 +709,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "message",
@@ -714,7 +719,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "arrived_at",
@@ -723,7 +729,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "status",
@@ -732,7 +739,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "telegram_notification_id",
@@ -741,7 +749,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "row_number",
@@ -763,254 +772,764 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        576,
-        -928
+        800,
+        -960
       ],
       "id": "fdda017c-84a2-4616-a987-8451305d3547",
-      "name": "Update row in sheet",
+      "name": "Mark Ticket Notification Sent",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
           "name": "Google Sheets account"
         }
       }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "hKchpdB4aXRkC2ql",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_ticket_sequence",
+          "cachedResultUrl": "/projects/DVm2YThCc2AiU5L3/datatables/hKchpdB4aXRkC2ql"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "support"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1872,
+        -496
+      ],
+      "id": "13cfef07-2d22-40a5-929d-9a412a93a981",
+      "name": "Read Support Ticket Sequence"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "hKchpdB4aXRkC2ql",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_ticket_sequence",
+          "cachedResultUrl": "/projects/DVm2YThCc2AiU5L3/datatables/hKchpdB4aXRkC2ql"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "support"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "last_number": "={{ ($json.last_number) + 1 }}",
+            "name": "={{ $json.name }}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_number",
+              "displayName": "last_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2096,
+        -496
+      ],
+      "id": "9e87d4c6-de59-4a49-9c24-8acdfa25465b",
+      "name": "Increment Support Ticket Sequence"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "hKchpdB4aXRkC2ql",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_ticket_sequence",
+          "cachedResultUrl": "/projects/DVm2YThCc2AiU5L3/datatables/hKchpdB4aXRkC2ql"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "support"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        -960
+      ],
+      "id": "95608d6f-9c09-4a5d-a573-c36cf6b4f415",
+      "name": "Read Ticket Sequence for Notification"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "1f7740d0-79fe-469b-aa01-ca5c169eb5e9",
+              "leftValue": "={{ $('Receive Support Reply on Telegram').item.json.message.reply_to_message.chat.id }}",
+              "rightValue": "={{ $json.value.toNumber() }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "20399d18-79d2-4846-b0d6-f3acec6e5a39",
+              "leftValue": "={{ $('Receive Support Reply on Telegram').item.json.message.reply_to_message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "740a5b28-deb4-47b8-93a6-064eb86f5172",
+              "leftValue": "={{ $('Receive Support Reply on Telegram').item.json.message.reply_to_message.message_id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        128,
+        -736
+      ],
+      "id": "a727d0b5-b0d6-4ead-bf58-474fe6d38e33",
+      "name": "Verify Telegram Support Reply"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "Bm4gHXFmUIqbHQqk",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_public_vars",
+          "cachedResultUrl": "/projects/DVm2YThCc2AiU5L3/datatables/Bm4gHXFmUIqbHQqk"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "telegram_group_chat_id"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        -736
+      ],
+      "id": "65ce6705-53cc-421f-ab02-5cf634edfc95",
+      "name": "Load Telegram Support Chat ID"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit#gid=476297179"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "message-sent"
+            },
+            {
+              "lookupColumn": "telegram_notification_id",
+              "lookupValue": "={{ $('Receive Support Reply on Telegram').item.json.message.reply_to_message.message_id }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        -736
+      ],
+      "id": "3f0b5da8-4e30-4521-8d1a-312af86e8561",
+      "name": "Find Ticket for Telegram Reply",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v26.0/{{ $json.value }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Find Ticket for Telegram Reply').item.json.customer_messenger_id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $('Receive Support Reply on Telegram').item.json.message.text }}\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        800,
+        -736
+      ],
+      "id": "79c38c78-6997-4120-9dde-3c960fe07818",
+      "name": "Forward Support Reply to Messenger",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "dEt7eeU7TP534opw",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "Bm4gHXFmUIqbHQqk",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_public_vars",
+          "cachedResultUrl": "/projects/DVm2YThCc2AiU5L3/datatables/Bm4gHXFmUIqbHQqk"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "fb_page_id"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        -736
+      ],
+      "id": "499561c3-d289-401d-957a-a1c12dade997",
+      "name": "Load Meta Page ID"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 604472928,
+          "mode": "list",
+          "cachedResultName": "faq-candidates",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit#gid=604472928"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Question": "={{ $('Find Ticket for Telegram Reply').item.json.message }}",
+            " Answer": "={{ $('Receive Support Reply on Telegram').item.json.message.text }}",
+            "status": "pending",
+            "date_added": "={{ $today.format('dd/LL/yyyy') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Question",
+              "displayName": "Question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": " Answer",
+              "displayName": " Answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date_added",
+              "displayName": "date_added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1024,
+        -736
+      ],
+      "id": "c09f9fad-16bb-4eb4-a678-4140fdf1ba28",
+      "name": "Save Reply as FAQ Candidate",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Keep Messages with Text').item.json.message.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Use only plaintext in the customer-facing response. Do not use Markdown or asterisks.\n\nYou are a customer support and customer acquisition agent. Your job is to answer customer queries and identify opportunities to help potential customers.\n\nUse the available Google Sheets tools to retrieve relevant information before deciding how to respond.\n\nReturn exactly one structured result:\n- If the retrieved data supports an answer, return only a `response` field containing the customer-facing reply. Do not include `needs_human`.\n- If the answer is not present in the retrieved Google Sheets data, return only `needs_human: true`. Do not include `response`.\n\nNever return `needs_human: false`, never include both fields, and do not add other fields.",
+          "forceToolCallOnFirstIteration": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1056,
+        -512
+      ],
+      "id": "e16968cd-785f-42ff-b6a3-cafbfae8f515",
+      "name": "Answer Customer"
     }
   ],
   "pinData": {},
   "connections": {
-    "Webhook": {
+    "Receive Meta Messenger Webhook": {
       "main": [
         [
           {
-            "node": "Respond to Webhook",
+            "node": "Return Meta Webhook Verification Challenge",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Split Out Entry",
+            "node": "Split Meta Webhook Entries",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Google Gemini Chat Model": {
+    "Gemini Flash Lite Chat Model": {
       "ai_languageModel": [
         [
           {
-            "node": "AI Agent",
+            "node": "Answer Customer",
             "type": "ai_languageModel",
             "index": 0
           },
           {
-            "node": "Guardrails",
+            "node": "Check Message Business Relevance",
             "type": "ai_languageModel",
             "index": 0
           },
           {
-            "node": "Basic LLM Chain",
+            "node": "Draft Off-Topic Reply",
             "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     },
-    "Simple Memory": {
+    "Remember Messenger Conversation": {
       "ai_memory": [
         [
           {
-            "node": "AI Agent",
+            "node": "Answer Customer",
             "type": "ai_memory",
             "index": 0
           }
         ]
       ]
     },
-    "Filter": {
+    "Keep Messages with Text": {
       "main": [
         [
           {
-            "node": "Guardrails",
+            "node": "Check Message Business Relevance",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "If needs_human",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "faq": {
+    "Search FAQ Knowledge Base": {
       "ai_tool": [
         [
           {
-            "node": "AI Agent",
+            "node": "Answer Customer",
             "type": "ai_tool",
             "index": 0
           }
         ]
       ]
     },
-    "Guardrails": {
+    "Check Message Business Relevance": {
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Answer Customer",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Split Out Checks",
+            "node": "Split Guardrail Checks",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Split Out Entry": {
+    "Split Meta Webhook Entries": {
       "main": [
         [
           {
-            "node": "Split Out Messaging",
+            "node": "Split Messenger Events",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Split Out Messaging": {
+    "Split Messenger Events": {
       "main": [
         [
           {
-            "node": "Filter",
+            "node": "Keep Messages with Text",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Basic LLM Chain": {
+    "Draft Off-Topic Reply": {
       "main": [
         [
           {
-            "node": "Append row in guardrail-logs",
+            "node": "Log Guardrail Result",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Split Out Checks": {
+    "Split Guardrail Checks": {
       "main": [
         [
           {
-            "node": "Basic LLM Chain",
+            "node": "Draft Off-Topic Reply",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Structured Output Parser1": {
+    "Validate Reply or Human Handoff": {
       "ai_outputParser": [
         [
           {
-            "node": "AI Agent",
+            "node": "Answer Customer",
             "type": "ai_outputParser",
             "index": 0
           }
         ]
       ]
     },
-    "Telegram Trigger": {
-      "main": [
-        []
-      ]
-    },
-    "Append row in support-ticket": {
-      "main": [
-        []
-      ]
-    },
-    "Append row in guardrail-logs": {
+    "Receive Support Reply on Telegram": {
       "main": [
         [
           {
-            "node": "HTTP Request1",
+            "node": "Load Telegram Support Chat ID",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "If needs_human": {
+    "Create Human-Handoff Support Ticket": {
+      "main": [
+        []
+      ]
+    },
+    "Log Guardrail Result": {
       "main": [
         [
           {
-            "node": "Append row in support-ticket",
+            "node": "Send Off-Topic Reply to Messenger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Unanswered Questions": {
+      "main": [
+        [
+          {
+            "node": "Read Support Ticket Sequence",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "HTTP Request",
+            "node": "Send AI Reply to Messenger",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Schedule Trigger": {
+    "Poll Pending Support Tickets": {
       "main": [
         [
           {
-            "node": "Get row(s) in sheet",
+            "node": "Find Pending Support Ticket",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get row(s) in sheet": {
+    "Find Pending Support Ticket": {
       "main": [
         [
           {
-            "node": "Edit Fields",
+            "node": "Set Support Group Chat ID",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Edit Fields": {
+    "Set Support Group Chat ID": {
       "main": [
         [
           {
-            "node": "Send a text message",
+            "node": "Notify Support Team on Telegram",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send a text message": {
+    "Notify Support Team on Telegram": {
       "main": [
         [
           {
-            "node": "Update row in sheet",
+            "node": "Read Ticket Sequence for Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Support Ticket Sequence": {
+      "main": [
+        [
+          {
+            "node": "Increment Support Ticket Sequence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increment Support Ticket Sequence": {
+      "main": [
+        [
+          {
+            "node": "Create Human-Handoff Support Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Ticket Sequence for Notification": {
+      "main": [
+        [
+          {
+            "node": "Mark Ticket Notification Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Telegram Support Chat ID": {
+      "main": [
+        [
+          {
+            "node": "Verify Telegram Support Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Telegram Support Reply": {
+      "main": [
+        [
+          {
+            "node": "Find Ticket for Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Ticket for Telegram Reply": {
+      "main": [
+        [
+          {
+            "node": "Load Meta Page ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Meta Page ID": {
+      "main": [
+        [
+          {
+            "node": "Forward Support Reply to Messenger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forward Support Reply to Messenger": {
+      "main": [
+        [
+          {
+            "node": "Save Reply as FAQ Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Customer": {
+      "main": [
+        [
+          {
+            "node": "Route Unanswered Questions",
             "type": "main",
             "index": 0
           }
@@ -1024,7 +1543,7 @@
     "binaryMode": "separate",
     "availableInMCP": true
   },
-  "versionId": "0a29ecbe-2ce1-42f9-be11-aa75207a3805",
+  "versionId": "00ee9304-0ad7-4190-a9ef-17e4ac91dce8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "aiBuilderAssisted": true,
