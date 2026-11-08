@@ -6,8 +6,7 @@
         "rule": {
           "interval": [
             {
-              "field": "minutes",
-              "minutesInterval": 1
+              "field": "minutes"
             }
           ]
         }
@@ -52,7 +51,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        528,
+        464,
         304
       ],
       "credentials": {
@@ -81,7 +80,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        800,
+        688,
         304
       ]
     },
@@ -113,7 +112,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1088,
+        912,
         304
       ],
       "webhookId": "e579604d-6d16-47db-a657-1070ede0df09",
@@ -149,7 +148,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        1360,
+        1136,
         304
       ]
     },
@@ -272,7 +271,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1648,
+        1360,
         304
       ],
       "credentials": {
@@ -388,13 +387,13 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
     "availableInMCP": true
   },
-  "versionId": "5661d33f-767e-4d88-8fc6-70f0e6c9c884",
+  "versionId": "695b5388-0971-49e2-8833-e5a8fe93cdb8",
   "meta": {
     "aiBuilderAssisted": true,
     "builderVariant": "mcp",
