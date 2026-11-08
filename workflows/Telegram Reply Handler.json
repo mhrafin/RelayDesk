@@ -397,24 +397,24 @@
       "parameters": {
         "operation": "editMessageText",
         "chatId": "={{ $('Load Support Chat ID').item.json.value }}",
-        "messageId": "={{ $('Route Claim Action').item.json.callback_query.message.message_id }}",
+        "messageId": "={{ $('Telegram Reply Trigger').item.json.callback_query.message.message_id }}",
         "replyMarkup": "inlineKeyboard",
-        "text": "={{ $('Route Claim Action').item.json.callback_query.message.text }}",
+        "text": "={{ $('Telegram Reply Trigger').item.json.callback_query.message.text }}",
         "inlineKeyboard": {
           "rows": [
             {
               "row": {
                 "buttons": [
                   {
-                    "text": "=Claimed By {{ $('Route Claim Action').item.json.callback_query.from.username }}",
+                    "text": "=Claimed By {{ $('Telegram Reply Trigger').item.json.callback_query.from.username }}",
                     "additionalFields": {
-                      "url": "=https://t.me/{{ $('Route Claim Action').item.json.callback_query.from.username }}"
+                      "url": "=https://t.me/{{ $('Telegram Reply Trigger').item.json.callback_query.from.username }}"
                     }
                   },
                   {
-                    "text": "={{ $('Route Claim Action').item.json.callback_query.from.username }} can unclaim",
+                    "text": "={{ $('Telegram Reply Trigger').item.json.callback_query.from.username }} can unclaim",
                     "additionalFields": {
-                      "callback_data": "=unclaim|{{ $('Route Claim Action').item.json.callback_query.data.split(\"|\")[1] }}"
+                      "callback_data": "=unclaim|{{ $('Telegram Reply Trigger').item.json.callback_query.data.split(\"|\")[1] }}"
                     }
                   }
                 ]
@@ -460,8 +460,8 @@
           "mappingMode": "defineBelow",
           "value": {
             "status": "claimed",
-            "ticket_id": "={{ $('Route Claim Action').item.json.callback_query.data.split(\"|\")[1] }}",
-            "claimed_by": "={{ $('Route Claim Action').item.json.callback_query.from.username }}"
+            "ticket_id": "={{ $('Telegram Reply Trigger').item.json.callback_query.data.split(\"|\")[1] }}",
+            "claimed_by": "={{ $('Telegram Reply Trigger').item.json.callback_query.from.username }}"
           },
           "matchingColumns": [
             "ticket_id"
@@ -573,9 +573,9 @@
       "parameters": {
         "operation": "editMessageText",
         "chatId": "={{ $('Load Support Chat ID').item.json.value }}",
-        "messageId": "={{ $('Route Claim Action').item.json.callback_query.message.message_id }}",
+        "messageId": "={{ $('Telegram Reply Trigger').item.json.callback_query.message.message_id }}",
         "replyMarkup": "inlineKeyboard",
-        "text": "={{ $('Route Claim Action').item.json.callback_query.message.text }}",
+        "text": "={{ $('Telegram Reply Trigger').item.json.callback_query.message.text }}",
         "inlineKeyboard": {
           "rows": [
             {
@@ -584,7 +584,7 @@
                   {
                     "text": "=Claim For Yourself",
                     "additionalFields": {
-                      "callback_data": "=claim|{{ $('Route Claim Action').item.json.callback_query.data.split(\"|\")[1] }}"
+                      "callback_data": "=claim|{{ $('Telegram Reply Trigger').item.json.callback_query.data.split(\"|\")[1] }}"
                     }
                   }
                 ]
@@ -630,7 +630,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "status": "unclaimed",
-            "ticket_id": "={{ $('Route Claim Action').item.json.callback_query.data.split(\"|\")[1] }}",
+            "ticket_id": "={{ $('Telegram Reply Trigger').item.json.callback_query.data.split(\"|\")[1] }}",
             "claimed_by": "=None"
           },
           "matchingColumns": [
@@ -803,7 +803,7 @@
             {
               "id": "a4e729b8-a7c3-4a57-9500-50200ebfa163",
               "leftValue": "={{ $json.claimed_by }}",
-              "rightValue": "={{ $('Route Claim Action').item.json.callback_query.from.username }}",
+              "rightValue": "={{ $('Telegram Reply Trigger').item.json.callback_query.from.username }}",
               "operator": {
                 "type": "string",
                 "operation": "equals"
@@ -827,7 +827,7 @@
       "parameters": {
         "operation": "deleteMessage",
         "chatId": "={{ $('Load Support Chat ID').item.json.value }}",
-        "messageId": "={{ $('Route Telegram Update').item.json.message.message_id }}"
+        "messageId": "={{ $('Telegram Reply Trigger').item.json.message.message_id }}"
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
@@ -838,6 +838,7 @@
       "id": "d014318c-54ef-4dcc-a704-3f5e655f1f04",
       "name": "Delete Original Reply",
       "webhookId": "713cd99b-9b5e-4cb4-8d24-2bdb2c39bec1",
+      "alwaysOutputData": true,
       "credentials": {
         "telegramApi": {
           "id": "CzX9WhUFvr0mTcg2",
@@ -947,7 +948,7 @@
                 "conditions": [
                   {
                     "leftValue": "={{ $json.claimed_by }}",
-                    "rightValue": "={{ $('Route Telegram Update').item.json.message.from.username }}",
+                    "rightValue": "={{ $('Telegram Reply Trigger').item.json.message.from.username }}",
                     "operator": {
                       "type": "string",
                       "operation": "notEquals"
@@ -1345,13 +1346,13 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
     "availableInMCP": true
   },
-  "versionId": "b828e530-5200-40ef-b8a8-15252ca9909e",
+  "versionId": "e2311513-a158-4a18-9b6f-87a810e04332",
   "meta": {
     "aiBuilderAssisted": true,
     "builderVariant": "mcp",
