@@ -1,0 +1,1364 @@
+{
+  "name": "Telegram Reply Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "id": "96bec8a3-4612-4635-a2e3-6a4052a8c6d8",
+      "name": "Telegram Reply Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -576,
+        1152
+      ],
+      "webhookId": "85bc2ef2-331b-4e22-b158-df7e254eecc5",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "1f7740d0-79fe-469b-aa01-ca5c169eb5e9",
+              "leftValue": "={{ $('Telegram Reply Trigger').item.json.message.reply_to_message.chat.id }}",
+              "rightValue": "={{ $('Load Support Chat ID').item.json.value.toNumber() }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "20399d18-79d2-4846-b0d6-f3acec6e5a39",
+              "leftValue": "={{ $('Telegram Reply Trigger').item.json.message.reply_to_message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "740a5b28-deb4-47b8-93a6-064eb86f5172",
+              "leftValue": "={{ $('Telegram Reply Trigger').item.json.message.reply_to_message.message_id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5bb30c1a-7c12-43a0-9cb1-e1de8c6e60f4",
+      "name": "Verify Reply Context",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        320,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "telegram_message_id",
+              "lookupValue": "={{ $('Telegram Reply Trigger').item.json.message.reply_to_message.message_id }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "id": "559cb74a-7fe8-4942-9ebe-32d326fdbcfd",
+      "name": "Find Replied Ticket",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        1536
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "Bm4gHXFmUIqbHQqk",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_public_vars"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "fb_page_id"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "a9ab1f3a-6bcb-4527-a164-17eee0b89047",
+      "name": "Load Page ID",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -128,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v26.0/{{ $('Load Page ID').item.json.value }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $(\"Find Replied Ticket\").item.json.customer_messenger_id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $(\"Telegram Reply Trigger\").item.json.message.text }}\"\n  }\n}\n",
+        "options": {}
+      },
+      "id": "9234c642-90ac-4480-9599-de9595f95464",
+      "name": "Forward Reply to Messenger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        992,
+        1728
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "dEt7eeU7TP534opw",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 604472928,
+          "mode": "list",
+          "cachedResultName": "faq-candidates"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Question": "={{ $('Find Replied Ticket').item.json.message }}",
+            " Answer": "={{ $('Telegram Reply Trigger').item.json.message.text }}",
+            "status": "pending",
+            "date_added": "={{ $today.format('dd/LL/yyyy') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Question",
+              "displayName": "Question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": " Answer",
+              "displayName": " Answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date_added",
+              "displayName": "date_added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "02caac8f-70ba-4e4b-96bd-d706911b9335",
+      "name": "Save FAQ Candidate",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        1728
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Reply Trigger').item.json.callback_query }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "0e4670a0-f75d-432a-aafd-19588157d381"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Callback Query"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "f845f9a0-203c-4659-ade8-c2bea3f2d62b",
+                    "leftValue": "={{ $('Telegram Reply Trigger').item.json.message }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Message"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        96,
+        1152
+      ],
+      "id": "43ca8ace-be5e-42bf-b998-2f9d21fc191c",
+      "name": "Route Telegram Update"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Reply Trigger').item.json.callback_query.data }}",
+                    "rightValue": "claim",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "id": "3fa17b9c-1050-4296-a105-18279d9a6280"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "claim"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "90cefeea-e6b0-429d-b8bd-0d450a78fb45",
+                    "leftValue": "={{ $('Telegram Reply Trigger').item.json.callback_query.data }}",
+                    "rightValue": "unclaim",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "unclaim"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        320,
+        960
+      ],
+      "id": "8db3fcf5-65bd-4aef-8bef-68dd3f1426fb",
+      "name": "Route Claim Action"
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $('Load Support Chat ID').item.json.value }}",
+        "messageId": "={{ $('Route Claim Action').item.json.callback_query.message.message_id }}",
+        "replyMarkup": "inlineKeyboard",
+        "text": "={{ $('Route Claim Action').item.json.callback_query.message.text }}",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "=Claimed By {{ $('Route Claim Action').item.json.callback_query.from.username }}",
+                    "additionalFields": {
+                      "url": "=https://t.me/{{ $('Route Claim Action').item.json.callback_query.from.username }}"
+                    }
+                  },
+                  {
+                    "text": "={{ $('Route Claim Action').item.json.callback_query.from.username }} can unclaim",
+                    "additionalFields": {
+                      "callback_data": "=unclaim|{{ $('Route Claim Action').item.json.callback_query.data.split(\"|\")[1] }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        864
+      ],
+      "id": "1f5f1513-b691-4931-b955-1ee980cc1a3d",
+      "name": "Show Claim Status",
+      "webhookId": "8aeee056-d929-488e-91e1-f780d0d1cfec",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit#gid=476297179"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "claimed",
+            "ticket_id": "={{ $('Route Claim Action').item.json.callback_query.data.split(\"|\")[1] }}",
+            "claimed_by": "={{ $('Route Claim Action').item.json.callback_query.from.username }}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customer_messenger_id",
+              "displayName": "customer_messenger_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "arrived_at",
+              "displayName": "arrived_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "telegram_message_id",
+              "displayName": "telegram_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "claimed_by",
+              "displayName": "claimed_by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "c6f95a17-6aae-4948-9ef7-7fea6be58e2f",
+      "name": "Mark Ticket Claimed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        864
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $('Load Support Chat ID').item.json.value }}",
+        "messageId": "={{ $('Route Claim Action').item.json.callback_query.message.message_id }}",
+        "replyMarkup": "inlineKeyboard",
+        "text": "={{ $('Route Claim Action').item.json.callback_query.message.text }}",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "=Claim For Yourself",
+                    "additionalFields": {
+                      "callback_data": "=claim|{{ $('Route Claim Action').item.json.callback_query.data.split(\"|\")[1] }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        992,
+        960
+      ],
+      "id": "b19b3323-0523-4323-a95f-8940fb0cd539",
+      "name": "Restore Claim Button",
+      "webhookId": "8aeee056-d929-488e-91e1-f780d0d1cfec",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4/edit#gid=476297179"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "unclaimed",
+            "ticket_id": "={{ $('Route Claim Action').item.json.callback_query.data.split(\"|\")[1] }}",
+            "claimed_by": "=None"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customer_messenger_id",
+              "displayName": "customer_messenger_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "arrived_at",
+              "displayName": "arrived_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "telegram_message_id",
+              "displayName": "telegram_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "claimed_by",
+              "displayName": "claimed_by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reassigned",
+              "displayName": "reassigned",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "1f9a8b48-7f39-404a-b943-a1f246a1e246",
+      "name": "Mark Ticket Unclaimed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        960
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1cf9K9XuBjwGgEY6V5i-lMOqydlXSLIbDh73AemDORs4",
+          "mode": "list",
+          "cachedResultName": "regressus-devs"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 476297179,
+          "mode": "list",
+          "cachedResultName": "support-ticket"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ticket_id",
+              "lookupValue": "={{ $('Telegram Reply Trigger').item.json.callback_query.data.split(\"|\")[1] }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "id": "9ce38e2d-83bd-4812-ac83-facbf4979896",
+      "name": "Find Claim Ticket",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        1056
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xpy4e70DqZA2E168",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "a4e729b8-a7c3-4a57-9500-50200ebfa163",
+              "leftValue": "={{ $json.claimed_by }}",
+              "rightValue": "={{ $('Route Claim Action').item.json.callback_query.from.username }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        768,
+        1056
+      ],
+      "id": "5005f214-c20d-4d7f-80dc-a2ed51fee842",
+      "name": "Check Claim Owner"
+    },
+    {
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $('Load Support Chat ID').item.json.value }}",
+        "messageId": "={{ $('Route Telegram Update').item.json.message.message_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1440,
+        1344
+      ],
+      "id": "d014318c-54ef-4dcc-a704-3f5e655f1f04",
+      "name": "Delete Original Reply",
+      "webhookId": "713cd99b-9b5e-4cb4-8d24-2bdb2c39bec1",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Load Support Chat ID').item.json.value }}",
+        "text": "={{ $('Set Claimer Error').isExecuted ? 'You cannot reply to this message. This ticket is assigned to ' + $('Validate Reply Owner').item.json.claimed_by + ' .' : '' }}\n{{ $('Set Missing Ticket Error').isExecuted ? 'No matching Row found in the support-ticket Google Sheet' + '.' : '' }}\n{{ $('Set Unclaim Error').isExecuted ? 'Only ' +$('Check Claim Owner').item.json.claimed_by  + ' can unclaim his claimed ticket.' : '' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1216,
+        1344
+      ],
+      "id": "34d91bb0-c14b-41ec-97ee-6053268d56b5",
+      "name": "Send Telegram Notice",
+      "webhookId": "efab6a93-4548-4e98-9bb2-f86ad69acdd8",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1664,
+        1344
+      ],
+      "id": "11f336dd-80e6-4976-a3b4-727a5c3ac486",
+      "name": "Wait Before Cleanup",
+      "webhookId": "a38df5de-0b9d-4dab-93a5-0c657825b09d"
+    },
+    {
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $('Load Support Chat ID').item.json.value }}",
+        "messageId": "={{ $('Send Telegram Notice').item.json.result.message_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1888,
+        1344
+      ],
+      "id": "05d7d7b7-6b0e-4ceb-aeb9-2ed5b87d3557",
+      "name": "Delete Telegram Notice",
+      "webhookId": "713cd99b-9b5e-4cb4-8d24-2bdb2c39bec1",
+      "credentials": {
+        "telegramApi": {
+          "id": "CzX9WhUFvr0mTcg2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "970418be-0282-4f2e-8ffc-cb433019132c",
+                    "leftValue": "={{ $('Find Replied Ticket').item.json.ticket_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notExists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "no_row"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.claimed_by }}",
+                    "rightValue": "={{ $('Route Telegram Update').item.json.message.from.username }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    },
+                    "id": "135e3712-34c4-49fa-b8cf-a9d931b8bd30"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "claimer_mismatch"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "82ba3c8b-ec01-4275-aa99-1c71b7ed7234",
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "all_good"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        768,
+        1520
+      ],
+      "id": "458626f8-2e77-4f3d-b8d1-3ae716887271",
+      "name": "Validate Reply Owner",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "488170f2-2d21-45e5-b1df-dd6befeca9bf",
+              "name": "problem",
+              "value": "claimer_mismatch",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        992,
+        1536
+      ],
+      "id": "723a6def-0db1-4ed2-9322-2316acd6e648",
+      "name": "Set Claimer Error"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "488170f2-2d21-45e5-b1df-dd6befeca9bf",
+              "name": "problem",
+              "value": "no_row",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        992,
+        1344
+      ],
+      "id": "5e64a90a-bd97-455b-8fee-2ace8859b74c",
+      "name": "Set Missing Ticket Error"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dd07c184-9768-4f4c-917a-2142401394af",
+              "name": "problem",
+              "value": "unclaim",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        992,
+        1152
+      ],
+      "id": "1cc67de3-2b17-4eb7-b7a8-82386b1cd97f",
+      "name": "Set Unclaim Error"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "Bm4gHXFmUIqbHQqk",
+          "mode": "list",
+          "cachedResultName": "regressus_devs_public_vars"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "keyValue": "telegram_group_chat_id"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "f313f6c5-6626-4b47-8169-924e22624bb8",
+      "name": "Load Support Chat ID",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -352,
+        1152
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Reply Trigger": {
+      "main": [
+        [
+          {
+            "node": "Load Support Chat ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Reply Context": {
+      "main": [
+        [
+          {
+            "node": "Find Replied Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Replied Ticket": {
+      "main": [
+        [
+          {
+            "node": "Validate Reply Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Page ID": {
+      "main": [
+        [
+          {
+            "node": "Route Telegram Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forward Reply to Messenger": {
+      "main": [
+        [
+          {
+            "node": "Save FAQ Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Telegram Update": {
+      "main": [
+        [
+          {
+            "node": "Route Claim Action",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Verify Reply Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Claim Action": {
+      "main": [
+        [
+          {
+            "node": "Show Claim Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Claim Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Show Claim Status": {
+      "main": [
+        [
+          {
+            "node": "Mark Ticket Claimed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Claim Button": {
+      "main": [
+        [
+          {
+            "node": "Mark Ticket Unclaimed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Claim Ticket": {
+      "main": [
+        [
+          {
+            "node": "Check Claim Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Claim Owner": {
+      "main": [
+        [
+          {
+            "node": "Restore Claim Button",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Unclaim Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Original Reply": {
+      "main": [
+        [
+          {
+            "node": "Wait Before Cleanup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Notice": {
+      "main": [
+        [
+          {
+            "node": "Delete Original Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before Cleanup": {
+      "main": [
+        [
+          {
+            "node": "Delete Telegram Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Reply Owner": {
+      "main": [
+        [
+          {
+            "node": "Set Missing Ticket Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Claimer Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Forward Reply to Messenger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Claimer Error": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Missing Ticket Error": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Unclaim Error": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Support Chat ID": {
+      "main": [
+        [
+          {
+            "node": "Load Page ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "b828e530-5200-40ef-b8a8-15252ca9909e",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6cc04bba7fa3035e7e71a6b241d97355e0ac5a02d8bb6943ee3649309612d7d8"
+  },
+  "nodeGroups": [],
+  "id": "KI9Rk4fwQ35wbg2q",
+  "tags": []
+}

@@ -1,5 +1,5 @@
 {
-  "name": "messenger-automation",
+  "name": "Messenger Support Bot",
   "nodes": [
     {
       "parameters": {
@@ -15,7 +15,7 @@
         -352
       ],
       "id": "6b2a284e-a23b-4957-b592-976593570d06",
-      "name": "Receive Meta Messenger Webhook",
+      "name": "Messenger Webhook",
       "webhookId": "0b1e8e4c-c30a-4f5f-95b1-3ebd7dbedb54"
     },
     {
@@ -31,7 +31,7 @@
         -448
       ],
       "id": "52fa9f1b-e0ef-4540-998a-77c9ef6a3fc0",
-      "name": "Return Meta Webhook Verification Challenge"
+      "name": "Return Webhook Challenge"
     },
     {
       "parameters": {
@@ -41,11 +41,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.2,
       "position": [
-        936,
-        -280
+        944,
+        -288
       ],
       "id": "2d191591-ce3c-491e-b3ea-26205d231a03",
-      "name": "Gemini Flash Lite Chat Model",
+      "name": "Gemini Flash Lite",
       "credentials": {
         "googlePalmApi": {
           "id": "qHQsJ6rdNby3pmT8",
@@ -56,17 +56,17 @@
     {
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Keep Messages with Text').item.json.sender.id }}",
+        "sessionKey": "={{ $('Filter Text Messages').item.json.sender.id }}",
         "contextWindowLength": 10
       },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.4,
       "position": [
-        1064,
-        -280
+        1072,
+        -288
       ],
       "id": "50f5b521-9427-4387-8056-02fca958fa14",
-      "name": "Remember Messenger Conversation"
+      "name": "Conversation Memory"
     },
     {
       "parameters": {
@@ -100,17 +100,17 @@
         -256
       ],
       "id": "d7305f5a-b73a-4c2b-974c-c41668e6b6ae",
-      "name": "Keep Messages with Text"
+      "name": "Filter Text Messages"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://graph.facebook.com/v26.0/{{ $('Keep Messages with Text').item.json.recipient.id }}/messages",
+        "url": "=https://graph.facebook.com/v26.0/{{ $('Filter Text Messages').item.json.recipient.id }}/messages",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Keep Messages with Text').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output.response) }}\n  }\n}\n",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter Text Messages').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output.response) }}\n  }\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -120,7 +120,7 @@
         -304
       ],
       "id": "768dbed9-9549-4007-8dbe-fc292def2265",
-      "name": "Send AI Reply to Messenger",
+      "name": "Send AI Reply",
       "credentials": {
         "httpHeaderAuth": {
           "id": "dEt7eeU7TP534opw",
@@ -149,11 +149,11 @@
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.7,
       "position": [
-        1192,
-        -280
+        1200,
+        -288
       ],
       "id": "6524c991-14a1-407c-8913-cb0601927f0f",
-      "name": "Search FAQ Knowledge Base",
+      "name": "Search FAQ",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
@@ -180,17 +180,17 @@
         -256
       ],
       "id": "4c306f74-1700-4dea-bb53-137aeb9e032f",
-      "name": "Check Message Business Relevance"
+      "name": "Check Business Scope"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://graph.facebook.com/v26.0/{{ $('Keep Messages with Text').item.json.recipient.id }}/messages",
+        "url": "=https://graph.facebook.com/v26.0/{{ $('Filter Text Messages').item.json.recipient.id }}/messages",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Keep Messages with Text').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $('Draft Off-Topic Reply').item.json.text }}\"\n  }\n}\n",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter Text Messages').item.json.sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"{{ $('Draft Scope Reply').item.json.text }}\"\n  }\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -200,7 +200,7 @@
         -64
       ],
       "id": "a6ba316d-f244-4080-af15-f466050bb3da",
-      "name": "Send Off-Topic Reply to Messenger",
+      "name": "Send Off-Topic Reply",
       "credentials": {
         "httpHeaderAuth": {
           "id": "dEt7eeU7TP534opw",
@@ -220,7 +220,7 @@
         -256
       ],
       "id": "764ad98b-1414-49bd-83f8-e73ef85d452d",
-      "name": "Split Meta Webhook Entries"
+      "name": "Split Webhook Entries"
     },
     {
       "parameters": {
@@ -234,12 +234,12 @@
         -256
       ],
       "id": "b264a420-2d17-432a-856f-6ab79beb387e",
-      "name": "Split Messenger Events"
+      "name": "Split Message Events"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $('Check Message Business Relevance').item.json.guardrailsInput }}",
+        "text": "={{ $('Check Business Scope').item.json.guardrailsInput }}",
         "messages": {
           "messageValues": [
             {
@@ -256,7 +256,7 @@
         -64
       ],
       "id": "563f2155-348e-419f-9271-1d9f116ac5a3",
-      "name": "Draft Off-Topic Reply"
+      "name": "Draft Scope Reply"
     },
     {
       "parameters": {
@@ -272,7 +272,7 @@
         -64
       ],
       "id": "26669692-49ee-4908-99e5-e7583b192931",
-      "name": "Split Guardrail Checks",
+      "name": "Split Guardrail Results",
       "alwaysOutputData": true
     },
     {
@@ -283,11 +283,11 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1320,
-        -280
+        1328,
+        -288
       ],
       "id": "5e7c2d1c-8430-4ce4-a861-1f8b48c239c7",
-      "name": "Validate Reply or Human Handoff"
+      "name": "Validate Reply Output"
     },
     {
       "parameters": {
@@ -309,8 +309,8 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "customer_messenger_id": "={{ $('Keep Messages with Text').item.json.sender.id }}",
-            "message": "={{ $('Keep Messages with Text').item.json.message.text }}",
+            "customer_messenger_id": "={{ $('Filter Text Messages').item.json.sender.id }}",
+            "message": "={{ $('Filter Text Messages').item.json.message.text }}",
             "arrived_at": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
             "status": "pending",
             "telegram_notification_id": "not_set",
@@ -391,7 +391,7 @@
         -496
       ],
       "id": "b71f7c03-0e11-46cb-bbb2-67c32c88fdad",
-      "name": "Create Human-Handoff Support Ticket",
+      "name": "Create Support Ticket",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
@@ -419,9 +419,9 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "User Message": "={{ $('Check Message Business Relevance').item.json.guardrailsInput }}",
-            "confidenceScore": "={{ $('Split Guardrail Checks').item.json.checks.confidenceScore }}",
-            "Type": "={{ $('Split Guardrail Checks').item.json.checks.name }}",
+            "User Message": "={{ $('Check Business Scope').item.json.guardrailsInput }}",
+            "confidenceScore": "={{ $('Split Guardrail Results').item.json.checks.confidenceScore }}",
+            "Type": "={{ $('Split Guardrail Results').item.json.checks.name }}",
             "Time": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
             "LLM Message": "={{ $json.text }}"
           },
@@ -492,7 +492,7 @@
         -64
       ],
       "id": "6771528a-f724-4777-9c58-1eec6f47054e",
-      "name": "Log Guardrail Result",
+      "name": "Log Guardrail Check",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "xpy4e70DqZA2E168",
@@ -532,7 +532,7 @@
         -400
       ],
       "id": "288c23fa-ce7f-4d01-9936-ff0a02f26126",
-      "name": "Route Unanswered Questions"
+      "name": "Route Unanswered"
     },
     {
       "parameters": {
@@ -562,7 +562,7 @@
         -496
       ],
       "id": "13cfef07-2d22-40a5-929d-9a412a93a981",
-      "name": "Read Support Ticket Sequence"
+      "name": "Read Ticket Counter"
     },
     {
       "parameters": {
@@ -625,12 +625,12 @@
         -496
       ],
       "id": "9e87d4c6-de59-4a49-9c24-8acdfa25465b",
-      "name": "Increment Support Ticket Sequence"
+      "name": "Increment Ticket Counter"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $('Keep Messages with Text').item.json.message.text }}",
+        "text": "={{ $('Filter Text Messages').item.json.message.text }}",
         "hasOutputParser": true,
         "options": {
           "systemMessage": "Use only plaintext in the customer-facing response. Do not use Markdown or asterisks.\n\nYou are a customer support and customer acquisition agent. Your job is to answer customer queries and identify opportunities to help potential customers.\n\nUse the available Google Sheets tools to retrieve relevant information before deciding how to respond.\n\nReturn exactly one structured result:\n- If the retrieved data supports an answer, return only a `response` field containing the customer-facing reply. Do not include `needs_human`.\n- If the answer is not present in the retrieved Google Sheets data, return only `needs_human: true`. Do not include `response`.\n\nNever return `needs_human: false`, never include both fields, and do not add other fields.",
@@ -644,217 +644,434 @@
         -512
       ],
       "id": "e16968cd-785f-42ff-b6a3-cafbfae8f515",
-      "name": "Answer Customer"
+      "name": "Answer Customer Query"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Split Out Entry": [
+      {
+        "json": {
+          "time": 1794017762774,
+          "id": "1415427351646195",
+          "messaging": [
+            {
+              "sender": {
+                "id": "28754719484168540"
+              },
+              "recipient": {
+                "id": "1415427351646195"
+              },
+              "timestamp": 1794017761954,
+              "message": {
+                "mid": "m_Q14pZDWPE0IrmODqpT3GoAY8e4rQOvXepjqKPjTa_yl7uUcSEGTUe05AHacHHf31qICSR0lz6Yq2YrdXLxI0-A",
+                "text": "What do you do?"
+              }
+            }
+          ]
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Split Out Messaging": [
+      {
+        "json": {
+          "sender": {
+            "id": "28754719484168540"
+          },
+          "recipient": {
+            "id": "1415427351646195"
+          },
+          "timestamp": 1794017761954,
+          "message": {
+            "mid": "m_Q14pZDWPE0IrmODqpT3GoAY8e4rQOvXepjqKPjTa_yl7uUcSEGTUe05AHacHHf31qICSR0lz6Yq2YrdXLxI0-A",
+            "text": "What do you do?"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Filter": [
+      {
+        "json": {
+          "sender": {
+            "id": "28754719484168540"
+          },
+          "recipient": {
+            "id": "1415427351646195"
+          },
+          "timestamp": 1794017761954,
+          "message": {
+            "mid": "m_Q14pZDWPE0IrmODqpT3GoAY8e4rQOvXepjqKPjTa_yl7uUcSEGTUe05AHacHHf31qICSR0lz6Yq2YrdXLxI0-A",
+            "text": "What do you do?"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 399683978,
+          "message": {
+            "message_id": 12,
+            "from": {
+              "id": 1938586485,
+              "is_bot": false,
+              "first_name": "Mahedi",
+              "last_name": "Hassan Rafin",
+              "username": "mhrafin_dev",
+              "language_code": "en"
+            },
+            "chat": {
+              "id": -5369062600,
+              "title": "Regressus Devs Support",
+              "type": "group",
+              "all_members_are_administrators": false
+            },
+            "date": 1794018133,
+            "reply_to_message": {
+              "message_id": 10,
+              "from": {
+                "id": 8831061395,
+                "is_bot": true,
+                "first_name": "Regressus Devs n8n Bot",
+                "username": "regressus_devs_n8n_bot"
+              },
+              "chat": {
+                "id": -5369062600,
+                "title": "Regressus Devs Support",
+                "type": "group",
+                "all_members_are_administrators": false
+              },
+              "date": 1794016329,
+              "text": "🔔 Human response needed\nTicket: {ticketid}\n\nCustomer message:\n“How much will it cost me to make an e-commerce website from you guys?”\n\nReply directly to this message with the exact response for the customer. If automatic forwarding is enabled, your reply will be sent to them as written. It will also be saved as an FAQ candidate for review. Please keep internal notes out of your reply.\n\nThis message was sent automatically with [n8n](https://n8n.io/?utmsource=n8n-internal&utmmedium=poweredby&utmcampaign=n8n-nodes-base.telegram6cc04bba7fa3035e7e71a6b241d97355e0ac5a02d8bb6943ee3649309612d7d8)",
+              "entities": [
+                {
+                  "offset": 40,
+                  "length": 350,
+                  "type": "italic"
+                },
+                {
+                  "offset": 431,
+                  "length": 6,
+                  "type": "italic"
+                },
+                {
+                  "offset": 437,
+                  "length": 158,
+                  "type": "url"
+                },
+                {
+                  "offset": 437,
+                  "length": 19,
+                  "type": "italic"
+                },
+                {
+                  "offset": 479,
+                  "length": 14,
+                  "type": "italic"
+                },
+                {
+                  "offset": 499,
+                  "length": 32,
+                  "type": "italic"
+                }
+              ],
+              "link_preview_options": {
+                "is_disabled": true
+              }
+            },
+            "text": "It will cost approximately from 20k to 40k"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Get row(s)2": [
+      {
+        "json": {
+          "value": "-5369062600",
+          "name": "telegram_group_chat_id",
+          "id": 1,
+          "createdAt": "2026-11-07T02:02:27.017Z",
+          "updatedAt": "2026-11-07T02:03:03.806Z"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Filter1": [
+      {
+        "json": {
+          "value": "-5369062600",
+          "name": "telegram_group_chat_id",
+          "id": 1,
+          "createdAt": "2026-11-07T02:02:27.017Z",
+          "updatedAt": "2026-11-07T02:03:03.806Z"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Get row(s) in sheet1": [
+      {
+        "json": {
+          "row_number": 2,
+          "ticket_id": "T-366-1",
+          "customer_messenger_id": "28754719484168540",
+          "message": "How much will it cost me to make an e-commerce website from you guys?",
+          "arrived_at": "2026-11-06 20:50:07",
+          "status": "message-sent",
+          "telegram_notification_id": 10
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "HTTP Request2": [
+      {
+        "json": {
+          "recipient_id": "28754719484168540",
+          "message_id": "m_coeY4qdrkoofbGmd7xD5tgY8e4rQOvXepjqKPjTa_ykhzBLa4tEn64GHi95cn9xX7sBSkUr1oYwFiMkAb-sVwQ"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Get row(s)3": [
+      {
+        "json": {
+          "value": "1415427351646195",
+          "name": "fb_page_id",
+          "id": 2,
+          "createdAt": "2026-11-07T02:20:34.279Z",
+          "updatedAt": "2026-11-07T02:20:54.144Z"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
   "connections": {
-    "Receive Meta Messenger Webhook": {
+    "Messenger Webhook": {
       "main": [
         [
           {
-            "node": "Return Meta Webhook Verification Challenge",
+            "node": "Return Webhook Challenge",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Split Meta Webhook Entries",
+            "node": "Split Webhook Entries",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Gemini Flash Lite Chat Model": {
+    "Gemini Flash Lite": {
       "ai_languageModel": [
         [
           {
-            "node": "Answer Customer",
+            "node": "Answer Customer Query",
             "type": "ai_languageModel",
             "index": 0
           },
           {
-            "node": "Check Message Business Relevance",
+            "node": "Check Business Scope",
             "type": "ai_languageModel",
             "index": 0
           },
           {
-            "node": "Draft Off-Topic Reply",
+            "node": "Draft Scope Reply",
             "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     },
-    "Remember Messenger Conversation": {
+    "Conversation Memory": {
       "ai_memory": [
         [
           {
-            "node": "Answer Customer",
+            "node": "Answer Customer Query",
             "type": "ai_memory",
             "index": 0
           }
         ]
       ]
     },
-    "Keep Messages with Text": {
+    "Filter Text Messages": {
       "main": [
         [
           {
-            "node": "Check Message Business Relevance",
+            "node": "Check Business Scope",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Search FAQ Knowledge Base": {
+    "Search FAQ": {
       "ai_tool": [
         [
           {
-            "node": "Answer Customer",
+            "node": "Answer Customer Query",
             "type": "ai_tool",
             "index": 0
           }
         ]
       ]
     },
-    "Check Message Business Relevance": {
+    "Check Business Scope": {
       "main": [
         [
           {
-            "node": "Answer Customer",
+            "node": "Answer Customer Query",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Split Guardrail Checks",
+            "node": "Split Guardrail Results",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Split Meta Webhook Entries": {
+    "Split Webhook Entries": {
       "main": [
         [
           {
-            "node": "Split Messenger Events",
+            "node": "Split Message Events",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Split Messenger Events": {
+    "Split Message Events": {
       "main": [
         [
           {
-            "node": "Keep Messages with Text",
+            "node": "Filter Text Messages",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Draft Off-Topic Reply": {
+    "Draft Scope Reply": {
       "main": [
         [
           {
-            "node": "Log Guardrail Result",
+            "node": "Log Guardrail Check",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Split Guardrail Checks": {
+    "Split Guardrail Results": {
       "main": [
         [
           {
-            "node": "Draft Off-Topic Reply",
+            "node": "Draft Scope Reply",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Validate Reply or Human Handoff": {
+    "Validate Reply Output": {
       "ai_outputParser": [
         [
           {
-            "node": "Answer Customer",
+            "node": "Answer Customer Query",
             "type": "ai_outputParser",
             "index": 0
           }
         ]
       ]
     },
-    "Create Human-Handoff Support Ticket": {
+    "Create Support Ticket": {
       "main": [
         []
       ]
     },
-    "Log Guardrail Result": {
+    "Log Guardrail Check": {
       "main": [
         [
           {
-            "node": "Send Off-Topic Reply to Messenger",
+            "node": "Send Off-Topic Reply",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Route Unanswered Questions": {
+    "Route Unanswered": {
       "main": [
         [
           {
-            "node": "Read Support Ticket Sequence",
+            "node": "Read Ticket Counter",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Send AI Reply to Messenger",
+            "node": "Send AI Reply",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Read Support Ticket Sequence": {
+    "Read Ticket Counter": {
       "main": [
         [
           {
-            "node": "Increment Support Ticket Sequence",
+            "node": "Increment Ticket Counter",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Increment Support Ticket Sequence": {
+    "Increment Ticket Counter": {
       "main": [
         [
           {
-            "node": "Create Human-Handoff Support Ticket",
+            "node": "Create Support Ticket",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Answer Customer": {
+    "Answer Customer Query": {
       "main": [
         [
           {
-            "node": "Route Unanswered Questions",
+            "node": "Route Unanswered",
             "type": "main",
             "index": 0
           }
@@ -868,11 +1085,12 @@
     "binaryMode": "separate",
     "availableInMCP": true
   },
-  "versionId": "6ceb10eb-5fa0-4e16-908e-ecfd7663897a",
+  "versionId": "4ca7dfc8-0d88-4e20-a353-f6e5fe8fc942",
   "meta": {
     "templateCredsSetupCompleted": true,
     "aiBuilderAssisted": true,
-    "builderVariant": "mcp"
+    "builderVariant": "mcp",
+    "instanceId": "6cc04bba7fa3035e7e71a6b241d97355e0ac5a02d8bb6943ee3649309612d7d8"
   },
   "nodeGroups": [],
   "id": "eDO0iQhrvJCzPbPR",

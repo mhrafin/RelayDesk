@@ -1,5 +1,5 @@
 {
-  "name": "Poll Pending Support Tickets",
+  "name": "Support Queue Poller",
   "nodes": [
     {
       "parameters": {
@@ -13,7 +13,7 @@
         }
       },
       "id": "31ca16ae-831f-46f6-9620-4b2bce6328ce",
-      "name": "Poll Pending Support Tickets",
+      "name": "Poll Support Queue",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.4,
       "position": [
@@ -48,7 +48,7 @@
         }
       },
       "id": "4e356a09-e628-4f68-ad3f-610012b2e395",
-      "name": "Find Pending Support Ticket",
+      "name": "Find Pending Ticket",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
@@ -77,7 +77,7 @@
         "options": {}
       },
       "id": "cc063ce5-4736-432b-861a-f3afe4e5ef10",
-      "name": "Set Support Group Chat ID",
+      "name": "Set Support Chat ID",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
@@ -88,11 +88,28 @@
     {
       "parameters": {
         "chatId": "={{ $json.supportGroupChatId }}",
-        "text": "=🔔 Human response needed\nTicket: {{ $('Find Pending Support Ticket').item.json.ticket_id }}\n\nCustomer message:\n“{{ $(\"Find Pending Support Ticket\").item.json.message }}”\n\nReply directly to this message with the exact response for the customer. If automatic forwarding is enabled, your reply will be sent to them as written. It will also be saved as an FAQ candidate for review. Please keep internal notes out of your reply.",
+        "text": "=🔔 Human response needed\nTicket: {{ $('Find Pending Ticket').item.json.ticket_id }}\n\nCustomer message:\n“{{ $(\"Find Pending Ticket\").item.json.message }}”\n\nReply directly to this message with the exact response for the customer. If automatic forwarding is enabled, your reply will be sent to them as written. It will also be saved as an FAQ candidate for review. Please keep internal notes out of your reply.",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Claim For Yourself",
+                    "additionalFields": {
+                      "callback_data": "=claim|{{ $('Find Pending Ticket').item.json.ticket_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
         "additionalFields": {}
       },
       "id": "3cd64561-22de-43e1-8874-4b7d45d58978",
-      "name": "Notify Support Team on Telegram",
+      "name": "Notify Support Team",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
@@ -128,7 +145,7 @@
         "returnAll": true
       },
       "id": "b7d7a589-230a-4bd2-bcca-d2c6095b0200",
-      "name": "Read Ticket Sequence for Notification",
+      "name": "Read Ticket Sequence",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
@@ -154,9 +171,10 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "ticket_id": "={{ $('Find Pending Support Ticket').item.json.ticket_id }}",
-            "telegram_notification_id": "={{ $('Notify Support Team on Telegram').item.json.result.message_id }}",
-            "status": "message-sent"
+            "ticket_id": "={{ $('Find Pending Ticket').item.json.ticket_id }}",
+            "status": "notified",
+            "claimed_by": "None",
+            "telegram_message_id": "={{ $('Notify Support Team').item.json.result.message_id }}"
           },
           "matchingColumns": [
             "ticket_id"
@@ -213,8 +231,18 @@
               "removed": false
             },
             {
-              "id": "telegram_notification_id",
-              "displayName": "telegram_notification_id",
+              "id": "telegram_message_id",
+              "displayName": "telegram_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "claimed_by",
+              "displayName": "claimed_by",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -240,7 +268,7 @@
         "options": {}
       },
       "id": "af3b6049-49f4-44a0-af0d-762889e8eca9",
-      "name": "Mark Ticket Notification Sent",
+      "name": "Mark Ticket Notified",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
@@ -255,57 +283,104 @@
       }
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Poll Pending Support Tickets": [
+      {
+        "json": {
+          "timestamp": "2026-11-07T20:27:55.634-05:00",
+          "Readable date": "November 7th 2026, 8:27:55 pm",
+          "Readable time": "8:27:55 pm",
+          "Day of week": "Saturday",
+          "Year": "2026",
+          "Month": "November",
+          "Day of month": "07",
+          "Hour": "20",
+          "Minute": "27",
+          "Second": "55",
+          "Timezone": "America/New_York (UTC-05:00)"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Find Pending Support Ticket": [
+      {
+        "json": {
+          "row_number": 4,
+          "ticket_id": "T-394-3",
+          "customer_messenger_id": "28754719484168540",
+          "message": "Do you guys provide any demo?",
+          "arrived_at": "2026-11-07 14:26:50",
+          "status": "pending",
+          "telegram_notification_id": 14
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Set Support Group Chat ID": [
+      {
+        "json": {
+          "supportGroupChatId": -5369062600
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
   "connections": {
-    "Poll Pending Support Tickets": {
+    "Poll Support Queue": {
       "main": [
         [
           {
-            "node": "Find Pending Support Ticket",
+            "node": "Find Pending Ticket",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Find Pending Support Ticket": {
+    "Find Pending Ticket": {
       "main": [
         [
           {
-            "node": "Set Support Group Chat ID",
+            "node": "Set Support Chat ID",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Set Support Group Chat ID": {
+    "Set Support Chat ID": {
       "main": [
         [
           {
-            "node": "Notify Support Team on Telegram",
+            "node": "Notify Support Team",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Notify Support Team on Telegram": {
+    "Notify Support Team": {
       "main": [
         [
           {
-            "node": "Read Ticket Sequence for Notification",
+            "node": "Read Ticket Sequence",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Read Ticket Sequence for Notification": {
+    "Read Ticket Sequence": {
       "main": [
         [
           {
-            "node": "Mark Ticket Notification Sent",
+            "node": "Mark Ticket Notified",
             "type": "main",
             "index": 0
           }
@@ -313,31 +388,19 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": true,
-    "binaryMode": "separate"
+    "binaryMode": "separate",
+    "availableInMCP": true
   },
-  "versionId": "d68cfa23-1f2e-4655-b0c6-241ba3a074f6",
+  "versionId": "5661d33f-767e-4d88-8fc6-70f0e6c9c884",
   "meta": {
     "aiBuilderAssisted": true,
-    "builderVariant": "mcp"
+    "builderVariant": "mcp",
+    "instanceId": "6cc04bba7fa3035e7e71a6b241d97355e0ac5a02d8bb6943ee3649309612d7d8"
   },
-  "nodeGroups": [
-    {
-      "id": "a9047e40-ca58-42dd-9a98-86c9b9dc43f1",
-      "name": "Find and notify pending ticket",
-      "nodeNames": [
-        "Find Pending Support Ticket",
-        "Set Support Group Chat ID",
-        "Notify Support Team on Telegram",
-        "Read Ticket Sequence for Notification",
-        "Mark Ticket Notification Sent"
-      ],
-      "description": "Finds one pending ticket, notifies the Telegram support group, and records the notification."
-    }
-  ],
+  "nodeGroups": [],
   "id": "GjD7BdXxhvenf8FF",
   "tags": []
 }
